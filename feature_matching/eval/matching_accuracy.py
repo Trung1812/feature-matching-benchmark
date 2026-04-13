@@ -1,14 +1,7 @@
 from pathlib import Path
 import numpy as np
 import torch
-from .retrieval_metrics import distance_from_coordinates
-
-def calculate_coordinate_from_image_position(
-    position: torch.Tensor | np.ndarray,
-    camera_angle: float,
-):
-    # Receive a list of position -> a list of coordinates, because of projective geometry, this is much harder than I thought
-    pass
+from .utils import transform_image_to_utm, distance_from_coordinates
 
 def error_per_query(
     paired_coordinates: torch.Tensor | np.ndarray,

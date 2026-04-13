@@ -1,78 +1,32 @@
-from geopy.distance import geodesic
 from pathlib import Path
 import pandas as pd
 import json
-
-def distance_from_coordinates(
-    lon_x: float,
-    lat_x: float,
-    lon_y: float,
-    lat_y: float
-):
-    """
-    Calculate distance (in meter) between 2 locations
-    """
-    coord1 = (lat_x, lon_x)
-    coord2 = (lat_y, lon_y)
-
-    distance = geodesic(coord1, coord2).meters
-
-    return distance
-
-def calculate_center_coord(
-    frame_corner_coordinates: tuple[float]
-):
-    """
-    Calculate center pixel's coordinate in WGS84
-
-    Params
-    ------
-    frame_corner_coordinates: coordinates (lon, lat) of the frame's corners (upper left, upper right, lower right, lower left)
-
-    Return
-    ------
-    tuple[float]
-    """
-    if len(frame_corner_coordinates) != 4:
-        raise ValueError("frame_corner_coordinate must contain exactly 4 corners")
-
-    lon_sum = 0.0
-    lat_sum = 0.0
-
-    for corner in frame_corner_coordinates:
-        if not isinstance(corner, (tuple, list)) or len(corner) != 2:
-            raise ValueError("Each corner must be a (lon, lat) pair")
-        lon_sum += float(corner[0])
-        lat_sum += float(corner[1])
-
-    return (lon_sum / 4.0, lat_sum / 4.0)
-
+from .utils import distance_from_coordinates
+ 
 def classify_result(   
-    lon_pred: float,
-    lat_pred: float,
-    lon_gt: float,
-    lat_gt: float,
+    pred,
+    gt,
+    is_valid_pred,
     tolerance: float = 5,
-    is_good_query: bool = False
+    is_good_query: bool = False,
     ) -> str:
     """
     Classify result into TP, FP1, FP2, TN, FN (read docs for meaning).
     Params
     ------ 
     """
-    is_valid_prediction = bool(lon_pred) and bool(lat_pred)
 
     if not is_good_query:
         
-        if is_valid_prediction:
+        if is_valid_pred:
             return "FP2"
         else:
             return "TN"
     else:
-        if not is_valid_prediction:
+        if not is_valid_pred:
             return "FN"
         else:
-            error = distance_from_coordinates(lon_pred, lat_pred, lon_gt, lat_gt)
+            error = distance_from_coordinates(pred, gt)
             if error <= tolerance:
                 return "TP"
             else:
