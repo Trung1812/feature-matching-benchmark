@@ -47,7 +47,7 @@ def distance_from_coordinates(
     """
     Calculate distance (in meter) between 2 locations
     """
-    assert crs.upper() not in {"WGS84", "UTM"}, f"Does not support distance computation with {crs} coordinate"
+    assert crs.upper() in {"WGS84", "UTM"}, f"Does not support distance computation with {crs} coordinate"
     
     if crs.upper() == "WGS84":
         distance = geodesic(coord1, coord2).meters
